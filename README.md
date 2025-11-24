@@ -1,6 +1,6 @@
 # LogStream - Query Service 🔍
 
-A NestJS microservice that provides a secure and efficient API for querying and retrieving structured log data from the database.
+A NodeJS microservice that provides a secure and efficient API for querying and retrieving structured log data from the database.
 
 This service acts as the backend-for-frontend (BFF), serving all data required by the LogStream dashboard. It exposes endpoints for searching, filtering, and aggregating log data, ensuring the frontend remains decoupled from the underlying database schema.
 
@@ -15,17 +15,11 @@ This service acts as the backend-for-frontend (BFF), serving all data required b
 
 ### Tech Stack
 
-- **Framework**: NestJS (TypeScript)
+- **Framework**: NodeJS
 - **Containerization**: Docker
-- **Deployment**: AWS Fargate
+- **Deployment**: AWS Lamda
 - **Database**: PostgreSQL (via RDS)
 
 ---
 
-### Getting Started
 
-_Instructions for local setup, environment variables, and running the service will be added here._
-
-### API Documentation
-
-_Details of the `/logs/search` and other query endpoints will be added here._
