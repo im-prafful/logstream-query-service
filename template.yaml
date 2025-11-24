@@ -21,7 +21,13 @@ Resources:
           - subnet-065a73345490e0ee8  #pvt subnet_id 2
         SecurityGroupIds:
           - sg-019f671390240930c       #sg_of lamda fnc( configured rds sg in aws console to allow requests from this lambda fnc)
-
+      Environment:
+        Variables:
+          DB_HOST: "logstream-db.czegikcsabng.ap-south-1.rds.amazonaws.com"
+          DB_PORT: "5432"
+          DB_NAME: "Logstream_DB"
+          DB_USER: "masterUser"
+          DB_PASSWORD: "Admin$1234"
       Events:
         Api:
           Type: HttpApi

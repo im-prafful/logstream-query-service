@@ -3,29 +3,31 @@ import pg from 'pg';
 
 dotenv.config();
 
-const { Client } = pg;
+const { Pool } = pg;
 
-async function testConnection() {
-  const client = new Client({
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    ssl: { rejectUnauthorized: false }//“Use SSL but trust ANY certificate blindly.”
-  });
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+    ssl: {
+    require: true,
+    rejectUnauthorized: false
+  }// disable SSL since you’re tunneling through bastion
+});
 
+pool.connect()
+  .then(() => console.log('✅ Connected to PostgreSQL!'))
+  .catch(err => console.error('❌ Database connection failed:', err.message));
+
+const query = async (text) => {
   try {
-    console.log("⏳ Connecting to PostgreSQL...");
-    await client.connect();
-    console.log("✅ Connected!");
-
+    const result = await pool.query(text);
+    return result;
   } catch (err) {
-    console.error("❌ Connection failed:", err.message);
-  } finally {
-    await client.end();
-    console.log("🔌 Connection closed.");
+    console.error('Error executing query:', err);
   }
-}
+};
 
-testConnection();
+export default query;

@@ -1,0 +1,20 @@
+{
+    "email":"rajaji.prashant@gmail.com",
+    "name":"Prashant",
+    "password":"ADCD"
+}
+
+
+{
+    "email":"prafful_chutrey@gmail.com",
+    "name":"Prof",
+    "password":"ADCDef"
+}
+
+{
+    "email":"rajaji.prashant2@gmail.com",
+    "name":"Prashant2",
+    "password":"ADCDwsdgwd"
+}
+
+
