@@ -18,3 +18,8 @@
 }
 
 
+{
+    "email": "sarah.connor@example.com",
+    "name": "Sarah_C",
+    "password": "SecureP@ss123"
+}
