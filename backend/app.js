@@ -1,7 +1,9 @@
 import express from 'express';
 import authRoutes from './routes/authRoute.js';
+import cors from 'cors'
 const app = express();
 
+app.use(cors())
 app.use(express.json()); 
 
 //TEST ROUTE 1
