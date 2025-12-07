@@ -1,5 +1,6 @@
 import express from 'express';
 import authRoutes from './routes/authRoute.js';
+import dashboardDisplayRoutes from './routes/dashboardDispRoute.js'
 import cors from 'cors'
 const app = express();
 
@@ -23,7 +24,7 @@ app.get('/api/users/:id', (req, res) => {
 
 //mounting routes
 app.use('/api/v1',authRoutes)
-
+app.use('/api/v1',dashboardDisplayRoutes)
 
 // IMPORTANT: Export the Express app instance
 export default app;
