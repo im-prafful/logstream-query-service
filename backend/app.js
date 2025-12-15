@@ -4,7 +4,21 @@ import dashboardDisplayRoutes from './routes/dashboardDispRoute.js'
 import cors from 'cors'
 const app = express();
 
-app.use(cors())
+// --- EXPLICIT CORS CONFIGURATION ---
+const corsOptions = {
+    // 1. Specify the exact origin of your frontend application
+    origin: 'http://localhost:5173', 
+    
+    // 2. Allow all necessary methods and headers
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // IMPORTANT: Allows cookies, authorization headers, etc.
+    
+    // 3. Ensure a successful status for the OPTIONS (preflight) request
+    optionsSuccessStatus: 204 
+};
+
+app.use(cors(corsOptions)); // Apply the explicit options
+// -----------------------------------
 app.use(express.json()); 
 
 //TEST ROUTE 1
