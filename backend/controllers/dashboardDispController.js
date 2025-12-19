@@ -1,7 +1,7 @@
 import express from'express'
 import query from '../dbConnector.js'
 
-export const displayLogs=async(req,res)=>{
+export const displayLogs1=async(req,res)=>{
     try{
         // Query the logs table to find the latest log date (by timestamp) 
         // and count how many logs were inserted on that specific date.
@@ -39,6 +39,21 @@ export const displayLogs=async(req,res)=>{
         })
 
     }catch(e){
+        console.log(e)
+        return res.status(500).json({ message: 'failed to retreive logs from DB' });
+    }
+}
+
+//DISPLAYS 30 LOGS BASED ON SELECTED LEVEL
+export const displayLogs2=async(req,res)=>{
+    try{
+        const {level}=req.body
+        let results=await query(`SELECT * FROM logs where level='${level}' order by timestamp desc limit 30`)
+
+        return res.status(200).json({message:'success',fetchedRows:`${results.rows.length}`,rows:`${results.rows}`})
+
+    }
+    catch(e){
         console.log(e)
         return res.status(500).json({ message: 'failed to retreive logs from DB' });
     }

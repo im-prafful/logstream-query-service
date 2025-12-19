@@ -28,17 +28,11 @@ app.get('/', (req, res) => {
   });
 });
 
-//TEST ROUTE 2
-app.get('/api/users/:id', (req, res) => {
-    res.json({ 
-        userId: req.params.id, 
-        source: 'Vendia Serverless Express'
-    });
-});
 
 //mounting routes
 app.use('/api/v1',authRoutes)
 app.use('/api/v1',dashboardDisplayRoutes)
+
 
 // IMPORTANT: Export the Express app instance
 export default app;
