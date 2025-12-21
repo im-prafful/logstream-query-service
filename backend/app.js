@@ -4,18 +4,24 @@ import dashboardDisplayRoutes from './routes/dashboardDispRoute.js'
 import cors from 'cors'
 const app = express();
 
-// --- EXPLICIT CORS CONFIGURATION ---
+/// --- EXPLICIT CORS CONFIGURATION ---
 const corsOptions = {
-    // 1. Specify the exact origin of your frontend application
-    origin: 'http://localhost:5173', 
-    
-    // 2. Allow all necessary methods and headers
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // IMPORTANT: Allows cookies, authorization headers, etc.
-    
-    // 3. Ensure a successful status for the OPTIONS (preflight) request
-    optionsSuccessStatus: 204 
+  // 1. Allowed frontend origins
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174'
+  ],
+
+  // 2. Allow required HTTP methods
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+
+  // 3. Allow credentials (cookies, auth headers, etc.)
+  credentials: true,
+
+  // 4. Success status for preflight requests
+  optionsSuccessStatus: 204
 };
+
 
 app.use(cors(corsOptions)); // Apply the explicit options
 // -----------------------------------
@@ -28,17 +34,11 @@ app.get('/', (req, res) => {
   });
 });
 
-//TEST ROUTE 2
-app.get('/api/users/:id', (req, res) => {
-    res.json({ 
-        userId: req.params.id, 
-        source: 'Vendia Serverless Express'
-    });
-});
 
 //mounting routes
 app.use('/api/v1',authRoutes)
 app.use('/api/v1',dashboardDisplayRoutes)
+
 
 // IMPORTANT: Export the Express app instance
 export default app;

@@ -23,3 +23,9 @@
     "name": "Sarah_C",
     "password": "SecureP@ss123"
 }
+
+{
+    "email":prafful@gmail.com,
+        "name": "Prafful",
+    "password": "Mishra@1234
+}
