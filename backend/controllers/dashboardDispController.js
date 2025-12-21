@@ -1,60 +1,57 @@
 import express from'express'
 import query from '../dbConnector.js'
 
-export const displayLogs1=async(req,res)=>{
-    try{
-        // Query the logs table to find the latest log date (by timestamp) 
-        // and count how many logs were inserted on that specific date.
+export const getDashboardLogs = async (req, res) => {
+    try {
+        const { level } = req.body; // Needed for the filtered logs based on category
 
-        const results=await query(`
+        // 1. Fetch latest log date and count
+        const results = await query(`
             WITH extracted_date AS (
-              SELECT "timestamp"::date AS log_date  -- 1. Give the extracted date a column alias
+              SELECT "timestamp"::date AS log_date
               FROM logs
             )
-
             SELECT 
-            log_date,         -- 2. Select the date column
-            COUNT(*) AS total_count
+                log_date, 
+                COUNT(*) AS total_count
             FROM extracted_date 
-            GROUP BY log_date -- 3. Group by the correct column alias
-            order by log_date desc
-            limit 1;   
-        `)
+            GROUP BY log_date 
+            ORDER BY log_date DESC
+            LIMIT 1;
+        `);
 
-
-        if (results.rows.length===0){
-             return res.status(501).json({ message: 'no new logs from DB' });
+        // Check if DB is empty as per your original logic
+        if (results.rows.length === 0) {
+            return res.status(501).json({ message: 'no new logs from DB' });
         }
 
-        const logCount=results.rows[0].total_count
+        const logCount = results.rows[0].total_count;
+        let temp = logCount < 5 ? logCount : 5;
 
-        let temp=logCount<5? logCount :5 //--fetch deatils of 5 logs to display in frontend  if 5<logCount as logcount can be very large(>1000) or fetch details of logCount itself if logCount<5   ...simple stuff!!
+        // 2. Fetch both the recent logs and the level-specific logs in parallel
+        const [recentLogs, filteredLogs,logs_per_category] = await Promise.all([
+            query(`SELECT * FROM logs ORDER BY timestamp DESC LIMIT ${temp}`),
+            query(`SELECT * FROM logs WHERE level='${level}' ORDER BY timestamp DESC LIMIT 30`),
+            query(`SELECT COUNT(*) as tc, level as lvl FROM logs GROUP BY level order by tc desc`)
+        ]);
 
-        const details=await query(`SELECT * FROM logs ORDER BY timestamp desc limit ${temp}`)
-        
+        // 3. Send all data as a single response object
         return res.status(200).json({
-            message:'success',
-            logCount:results.rows,
-            logs:details.rows
-        })
+            message: 'success',
+            //res objects for top 5 most recent logs
+            logCount: results.rows,       
+            logs: recentLogs.rows,  
+            
+            //res objects for 30 fileterd rows based on category
+            fetchedRows: filteredLogs.rows.length, 
+            rows: filteredLogs.rows,
+            
+            //logs count per category
+            logs_per_category:logs_per_category.rows
+        });
 
-    }catch(e){
-        console.log(e)
-        return res.status(500).json({ message: 'failed to retreive logs from DB' });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ message: 'failed to retrieve logs from DB' });
     }
-}
-
-//DISPLAYS 30 LOGS BASED ON SELECTED LEVEL
-export const displayLogs2=async(req,res)=>{
-    try{
-        const {level}=req.body
-        let results=await query(`SELECT * FROM logs where level='${level}' order by timestamp desc limit 30`)
-
-        return res.status(200).json({message:'success',fetchedRows:`${results.rows.length}`,rows:`${results.rows}`})
-
-    }
-    catch(e){
-        console.log(e)
-        return res.status(500).json({ message: 'failed to retreive logs from DB' });
-    }
-}
+};
