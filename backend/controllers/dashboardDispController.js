@@ -29,10 +29,27 @@ export const getDashboardLogs = async (req, res) => {
         let temp = logCount < 5 ? logCount : 5;
 
         // 2. Fetch both the recent logs and the level-specific logs in parallel
-        const [recentLogs, filteredLogs,logs_per_category] = await Promise.all([
+        const [recentLogs, filteredLogs,logs_per_category,logs_per_cluster] = await Promise.all([
             query(`SELECT * FROM logs ORDER BY timestamp DESC LIMIT ${temp}`),
             query(`SELECT * FROM logs WHERE level='${level}' ORDER BY timestamp DESC LIMIT 30`),
-            query(`SELECT COUNT(*) as tc, level as lvl FROM logs GROUP BY level order by tc desc`)
+            query(`SELECT COUNT(*) as tc, level as lvl FROM logs GROUP BY level order by tc desc`),
+                        //Logs per cluster for latest DATE
+            query(`
+      WITH t AS (
+        SELECT DATE(timestamp) AS latest_date
+        FROM logs
+        ORDER BY timestamp DESC
+        LIMIT 1
+      )
+      SELECT
+        l.cluster_id,
+        COUNT(*) AS total_logs_per_cluster
+      FROM logs l
+      JOIN t
+        ON DATE(l.timestamp) = t.latest_date
+      WHERE l.level IN ('error','warning')
+      GROUP BY l.cluster_id
+    `)
         ]);
 
         // 3. Send all data as a single response object
@@ -47,7 +64,8 @@ export const getDashboardLogs = async (req, res) => {
             rows: filteredLogs.rows,
             
             //logs count per category
-            logs_per_category:logs_per_category.rows
+            logs_per_category:logs_per_category.rows,
+            logs_per_cluster:logs_per_cluster.rows
         });
 
     } catch (e) {
