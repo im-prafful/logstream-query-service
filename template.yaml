@@ -2,10 +2,32 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Serverless Express.js API using @vendia/serverless-express
 
+# -------------------------------------------------------------------------
+# GLOBAL CONFIGURATION
+# This fixes your CORS issues by applying these rules to the API automatically.
+# -------------------------------------------------------------------------
 Globals:
   Function:
     Timeout: 15
     MemorySize: 512
+  HttpApi:
+    CorsConfiguration:
+      AllowOrigins:
+        - "http://localhost:5173"  # 👈 Explicitly allows your frontend
+      AllowHeaders:
+        - "Content-Type"
+        - "Authorization"
+        - "X-Amz-Date"
+        - "X-Api-Key"
+        - "X-Amz-Security-Token"
+      AllowMethods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "OPTIONS"
+      AllowCredentials: true 
+      MaxAge: 300
 
 Resources:
   ExpressJsFunction:
@@ -15,16 +37,16 @@ Resources:
       Handler: index.handler
       Runtime: nodejs20.x
 
-      # ❗ REMOVE VpcConfig COMPLETELY 
-      # Lambda is now outside the VPC so it can talk to internet + SQS etc.
-
+      # ❗ NOTE: Since you removed VpcConfig, ensure your RDS instance 
+      # is set to "Publicly Accessible", otherwise this function cannot connect.
+      
       Environment:
         Variables:
           DB_HOST: "logstream-2-db.czegikcsabng.ap-south-1.rds.amazonaws.com"
           DB_PORT: "5432"
           DB_NAME: "LogStream_2.0"
           DB_USER: "masterUser"
-          DB_PASSWORD: "Admin$1234"
+          DB_PASSWORD: "Admin$1234" # ⚠️ Recommendation: Move this to Secrets Manager later
 
       Events:
         Api:
