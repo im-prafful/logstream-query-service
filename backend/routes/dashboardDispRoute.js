@@ -1,8 +1,8 @@
 import express from 'express'
-import { getDashboardLogs } from '../controllers/dashboardDispController.js';
+import { getDashboardLogs, getFilteredLogs } from '../controllers/dashboardDispController.js';
 import { jwtMiddleware } from '../middlewares/jwt.js';
 const router=express.Router()
 
-router.post('/logs',jwtMiddleware,getDashboardLogs)
-
+router.get('/logs',jwtMiddleware,getDashboardLogs)
+router.post('/category_logs',jwtMiddleware,getFilteredLogs)
 export default router;
