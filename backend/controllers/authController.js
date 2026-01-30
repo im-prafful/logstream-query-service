@@ -4,9 +4,9 @@ import query from '../dbConnector.js'
 import jwt from 'jsonwebtoken'
 
 export const signupFnc = async (req, res) => {
-    const { email, name, password } = req.body;
+    const { email, name, password,role } = req.body;
 
-    if (!email || !password || !name) {
+    if (!email || !password || !name || !role) {
         return res.status(400).json({ message: 'Bad request: Please fill all required fields.' });
     }
 
@@ -37,8 +37,8 @@ export const signupFnc = async (req, res) => {
 export const loginFnc = async (req, res) => {
     try {
 
-        const { email, password } = req.body
-        if (!email || !password) {
+        const { email, password,role } = req.body
+        if (!email || !password || !role) {
             res.status(401).json({ message: 'Bad request/Fill all fields' })
             return
         }
