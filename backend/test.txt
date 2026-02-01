@@ -1,31 +1,6 @@
 {
-    "email":"rajaji.prashant@gmail.com",
-    "name":"Prashant",
-    "password":"ADCD"
-}
-
-
-{
-    "email":"prafful_chutrey@gmail.com",
-    "name":"Prof",
-    "password":"ADCDef"
-}
-
-{
-    "email":"rajaji.prashant2@gmail.com",
-    "name":"Prashant2",
-    "password":"ADCDwsdgwd"
-}
-
-
-{
-    "email": "sarah.connor@example.com",
-    "name": "Sarah_C",
-    "password": "SecureP@ss123"
-}
-
-{
-    "email":prafful@gmail.com,
-        "name": "Prafful",
-    "password": "Mishra@1234
+  "email": "rajaji.prashant@gmail.com",
+  "name": "Prashant Rajaji",
+  "password": "sdcgs@324#",
+  "role": "dev"
 }

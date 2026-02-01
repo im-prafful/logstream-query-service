@@ -4,7 +4,7 @@ import query from '../dbConnector.js'
 import jwt from 'jsonwebtoken'
 
 export const signupFnc = async (req, res) => {
-    const { email, name, password,role } = req.body;
+    const { email, name, password, role } = req.body;
 
     if (!email || !password || !name || !role) {
         return res.status(400).json({ message: 'Bad request: Please fill all required fields.' });
@@ -18,9 +18,9 @@ export const signupFnc = async (req, res) => {
 
         const hashed_password = await bcrypt.hash(password, 10);
 
-
         const dbResult = await query(
-            `INSERT INTO users(email, full_name, hashed_password) VALUES('${email}', '${name}', '${hashed_password}')`
+            `INSERT INTO users(email, full_name, hashed_password, role) 
+             VALUES('${email}', '${name}', '${hashed_password}', '${role}')`
         );
 
         console.log(`[INSERT SUCCESSFUL]`);
@@ -33,6 +33,7 @@ export const signupFnc = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error during user insertion.' });
     }
 };
+
 
 export const loginFnc = async (req, res) => {
     try {
@@ -57,6 +58,11 @@ export const loginFnc = async (req, res) => {
 
         let userData = await query(`SELECT * FROM users where email='${email}'`)
         const user = userData.rows[0];
+
+        if(user.role.toLowerCase()!==role.toLowerCase()){
+            res.status(401).json({ message: 'Bad request/Incorrect role' })
+            return
+        }
 
         // Build JWT
         const payload = {
