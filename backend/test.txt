@@ -1,6 +1,10 @@
 {
-  "email": "rajaji.prashant@gmail.com",
+  "email": "rajaji.prashant2@gmail.com",
   "name": "Prashant Rajaji",
-  "password": "sdcgs@324#",
+  "password": "Xyko_112",
   "role": "dev"
+}
+,
+{
+  
 }
