@@ -1,0 +1,18 @@
+{
+    "SRE": [
+        "view_logs",
+        "view_clusters",
+        "manage_incidents",
+        "manage_alerts",
+        "configure_system"
+    ],
+    "Dev": [
+        "view_logs",
+        "view_clusters",
+        "manage_incidents"
+    ],
+    "QA": [
+        "view_logs",
+        "view_clusters"
+    ]
+}
