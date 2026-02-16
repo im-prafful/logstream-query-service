@@ -2,6 +2,12 @@ import express from 'express'
 import bcrypt from 'bcryptjs'
 import query from '../dbConnector.js'
 import jwt from 'jsonwebtoken'
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const signupFnc = async (req, res) => {
     const { email, name, password, role } = req.body;
@@ -38,7 +44,7 @@ export const signupFnc = async (req, res) => {
 export const loginFnc = async (req, res) => {
     try {
 
-        const { email, password,role } = req.body
+        const { email, password, role } = req.body
         if (!email || !password || !role) {
             res.status(401).json({ message: 'Bad request/Fill all fields' })
             return
@@ -59,10 +65,26 @@ export const loginFnc = async (req, res) => {
         let userData = await query(`SELECT * FROM users where email='${email}'`)
         const user = userData.rows[0];
 
-        if(user.role.toLowerCase()!==role.toLowerCase()){
+        if (user.role.toLowerCase() !== role.toLowerCase()) {
             res.status(401).json({ message: 'Bad request/Incorrect role' })
             return
         }
+
+        // Read permissions
+        const permissionsPath = path.join(__dirname, '../permissions.json');
+        let permissionsData = {};
+        try {
+            if (fs.existsSync(permissionsPath)) {
+                permissionsData = JSON.parse(fs.readFileSync(permissionsPath, 'utf8'));
+            }
+        } catch (error) {
+            console.error("Error reading permissions.json:", error);
+        }
+
+        const userRole = user.role;
+        // Case-insensitive lookup for role in permissions
+        const roleKey = Object.keys(permissionsData).find(key => key.toLowerCase() === userRole.toLowerCase());
+        const userPermissions = roleKey ? permissionsData[roleKey] : [];
 
         // Build JWT
         const payload = {
@@ -77,7 +99,7 @@ export const loginFnc = async (req, res) => {
 
         res.status(200).json({
             message: "user successfully fetched",
-            data: user,
+            data: { ...user, permissions: userPermissions },
             token: token
         });
 
