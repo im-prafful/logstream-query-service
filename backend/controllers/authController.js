@@ -2,12 +2,7 @@ import express from 'express'
 import bcrypt from 'bcryptjs'
 import query from '../dbConnector.js'
 import jwt from 'jsonwebtoken'
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { ROLE_MATRIX } from '../permissions.js';
 
 export const signupFnc = async (req, res) => {
     const { email, name, password, role } = req.body;
@@ -70,25 +65,13 @@ export const loginFnc = async (req, res) => {
             return
         }
 
-        // Read permissions
-        const permissionsPath = path.join(__dirname, '../permissions.json');
-        let permissionsData = {};
-        try {
-            if (fs.existsSync(permissionsPath)) {
-                permissionsData = JSON.parse(fs.readFileSync(permissionsPath, 'utf8'));
-            }
-        } catch (error) {
-            console.error("Error reading permissions.json:", error);
-        }
+        // Get permissions from ROLE_MATRIX
+        const userPermissions = ROLE_MATRIX[user.role] || {};
 
-        const userRole = user.role;
-        // Case-insensitive lookup for role in permissions
-        const roleKey = Object.keys(permissionsData).find(key => key.toLowerCase() === userRole.toLowerCase());
-        const userPermissions = roleKey ? permissionsData[roleKey] : [];
-
-        // Build JWT
+        // Build JWT (role is embedded so backend can extract it later)
         const payload = {
-            email: user.email
+            email: user.email,
+            role: user.role
         };
 
         const token = jwt.sign(

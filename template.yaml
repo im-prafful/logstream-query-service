@@ -2,10 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Serverless Express.js API using @vendia/serverless-express
 
-# -------------------------------------------------------------------------
-# GLOBAL CONFIGURATION
-# This fixes your CORS issues by applying these rules to the API automatically.
-# -------------------------------------------------------------------------
 Globals:
   Function:
     Timeout: 15
@@ -13,7 +9,7 @@ Globals:
   HttpApi:
     CorsConfiguration:
       AllowOrigins:
-        - "http://localhost:5173"  # 👈 Explicitly allows your frontend
+        - "http://localhost:5173"  #  Explicitly allows your frontend
       AllowHeaders:
         - "Content-Type"
         - "Authorization"
@@ -37,8 +33,6 @@ Resources:
       Handler: index.handler
       Runtime: nodejs20.x
 
-      # ❗ NOTE: Since you removed VpcConfig, ensure your RDS instance 
-      # is set to "Publicly Accessible", otherwise this function cannot connect.
       
       Environment:
         Variables:
@@ -46,7 +40,7 @@ Resources:
           DB_PORT: "5432"
           DB_NAME: "LogStream_2.0"
           DB_USER: "masterUser"
-          DB_PASSWORD: "Admin$1234" # ⚠️ Recommendation: Move this to Secrets Manager later
+          DB_PASSWORD: "Admin$1234"
 
       Events:
         Api:
