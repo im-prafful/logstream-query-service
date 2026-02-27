@@ -1,8 +1,26 @@
 import express from 'express'
 import query from '../dbConnector.js'
+import redisclient from '../caching/redisClient.js';
 
 export const getDashboardLogs = async (req, res) => {
     try {
+
+        const cachedData = await redisclient.get('dashboardLogs:summary')
+
+        if (cachedData) {
+            return res.status(200).json({
+                message: 'success',
+                //res objects for top 5 most recent logs
+                logCount: JSON.parse(cachedData).logCount,
+                logs: JSON.parse(cachedData).logs,
+
+                //logs count per category
+                logs_per_category: JSON.parse(cachedData).logs_per_category,
+
+                //log count per cluster
+                logs_per_cluster: JSON.parse(cachedData).logs_per_cluster
+            });
+        }
 
         // 1. Fetch latest log date and count
         const results = await query(`
@@ -49,6 +67,14 @@ export const getDashboardLogs = async (req, res) => {
       GROUP BY l.cluster_id
     `)
         ]);
+
+
+        await redisclient.setEx('dashboardLogs:summary', 120, JSON.stringify({
+            logCount: results.rows,
+            logs: recentLogs.rows,
+            logs_per_category: logs_per_category.rows,
+            logs_per_cluster: logs_per_cluster.rows
+        }))
 
         // 3. Send all data as a single response object
         return res.status(200).json({
