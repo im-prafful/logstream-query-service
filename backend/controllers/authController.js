@@ -6,9 +6,14 @@ import { ROLE_MATRIX } from '../permissions.js';
 
 export const signupFnc = async (req, res) => {
     const { email, name, password, role } = req.body;
+    const normalizedRole = String(role || '').toLowerCase();
 
     if (!email || !password || !name || !role) {
         return res.status(400).json({ message: 'Bad request: Please fill all required fields.' });
+    }
+
+    if (!ROLE_MATRIX[normalizedRole]) {
+        return res.status(400).json({ message: 'Bad request: Invalid role.' });
     }
 
     try {
@@ -21,7 +26,7 @@ export const signupFnc = async (req, res) => {
 
         const dbResult = await query(
             `INSERT INTO users(email, full_name, hashed_password, role) 
-             VALUES('${email}', '${name}', '${hashed_password}', '${role}')`
+             VALUES('${email}', '${name}', '${hashed_password}', '${normalizedRole}')`
         );
 
         console.log(`[INSERT SUCCESSFUL]`);
@@ -40,6 +45,7 @@ export const loginFnc = async (req, res) => {
     try {
 
         const { email, password, role } = req.body
+        const normalizedRole = String(role || '').toLowerCase();
         if (!email || !password || !role) {
             res.status(401).json({ message: 'Bad request/Fill all fields' })
             return
@@ -59,19 +65,20 @@ export const loginFnc = async (req, res) => {
 
         let userData = await query(`SELECT * FROM users where email='${email}'`)
         const user = userData.rows[0];
+        const userRole = String(user.role || '').toLowerCase();
 
-        if (user.role.toLowerCase() !== role.toLowerCase()) {
+        if (userRole !== normalizedRole) {
             res.status(401).json({ message: 'Bad request/Incorrect role' })
             return
         }
 
         // Get permissions from ROLE_MATRIX
-        const userPermissions = ROLE_MATRIX[user.role] || {};
+        const userPermissions = ROLE_MATRIX[userRole] || {};
 
         // Build JWT (role is embedded so backend can extract it later)
         const payload = {
             email: user.email,
-            role: user.role
+            role: userRole
         };
 
         const token = jwt.sign(
@@ -82,7 +89,7 @@ export const loginFnc = async (req, res) => {
 
         res.status(200).json({
             message: "user successfully fetched",
-            data: { ...user, permissions: userPermissions },
+            data: { ...user, role: userRole, permissions: userPermissions },
             token: token
         });
 

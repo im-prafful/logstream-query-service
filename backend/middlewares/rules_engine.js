@@ -2,7 +2,7 @@ import { ROLE_MATRIX } from "../permissions.js";
 
 export const authorize = (permission, capability) => {
     return (req, res, next) => {
-        const role = req.user?.role; // extracted from JWT by jwtMiddleware
+        const role = String(req.user?.role || '').toLowerCase(); // extracted from JWT by jwtMiddleware
 
         // Nested permissions (e.g. manage_incidents.create)
         if (permission && capability && ROLE_MATRIX?.[role]?.[permission]?.[capability]) {

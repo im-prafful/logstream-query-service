@@ -1,5 +1,5 @@
 export const ROLE_MATRIX = {
-  SRE: {
+  sre: {
     view_logs: true,
     view_clusters: true,
 
@@ -13,7 +13,7 @@ export const ROLE_MATRIX = {
     manage_alerts: true
   },
 
-  Dev: {
+  dev: {
     view_logs: true,
     view_clusters: false,
 
@@ -25,7 +25,7 @@ export const ROLE_MATRIX = {
     }
   },
 
-  QA: {
+  qa: {
     view_logs: true,
     view_clusters: false,
 
