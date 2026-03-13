@@ -6,24 +6,6 @@ Globals:
   Function:
     Timeout: 15
     MemorySize: 512
-  HttpApi:
-    CorsConfiguration:
-      AllowOrigins:
-        - "http://localhost:5173"  #  Explicitly allows your frontend
-      AllowHeaders:
-        - "Content-Type"
-        - "Authorization"
-        - "X-Amz-Date"
-        - "X-Api-Key"
-        - "X-Amz-Security-Token"
-      AllowMethods:
-        - "GET"
-        - "POST"
-        - "PUT"
-        - "DELETE"
-        - "OPTIONS"
-      AllowCredentials: true 
-      MaxAge: 300
 
 Resources:
   ExpressJsFunction:

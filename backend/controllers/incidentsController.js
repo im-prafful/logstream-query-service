@@ -1,8 +1,53 @@
 import query from "../dbConnector.js";
+import redisclient from "../caching/redisClient.js";
 
+export const viewIncidents = async (req, res) => {
+    try {
 
-export const viewIncidents = (req, res) => {
-    return res.status(200).json({ message: 'incidents fetched successfully' });
+        // role comes from JWT
+        const role = req.user.role;
+
+        const cacheKey = `incsByRole:${role}`;
+
+        // check redis cache
+        const cachedData = await redisclient.get(cacheKey);
+
+        if (cachedData) {
+            const incidents = JSON.parse(cachedData);
+
+            return res.status(200).json({
+                message: "incidents fetched successfully (cache)",
+                incidents
+            });
+        }
+
+        // fetch from database if cache miss
+        const results = await query(`
+            SELECT *
+            FROM incidents
+            WHERE assigned_role='${role}'
+            ORDER BY created_at DESC
+        `);
+
+        // store in redis for 10 minutes
+        await redisclient.setEx(
+            cacheKey,
+            600,
+            JSON.stringify(results.rows)
+        );
+
+        return res.status(200).json({
+            message: "incidents fetched successfully (db)",
+            incidents: results.rows
+        });
+
+    } catch (err) {
+        console.error("Error fetching incident:", err);
+
+        return res.status(500).json({
+            message: "failed to fetch incident"
+        });
+    }
 };
 
 

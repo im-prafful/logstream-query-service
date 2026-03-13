@@ -69,7 +69,7 @@ export const getDashboardLogs = async (req, res) => {
         ]);
 
 
-        await redisclient.setEx('dashboardLogs:summary', 120, JSON.stringify({
+        await redisclient.setEx('dashboardLogs:summary', 600, JSON.stringify({
             logCount: results.rows,
             logs: recentLogs.rows,
             logs_per_category: logs_per_category.rows,

@@ -6,7 +6,16 @@ import permissionsRoute from './routes/permissionsRoute.js'
 import cors from 'cors'
 const app = express();
 
-app.use(express.json()); 
+app.use(express.json());
+
+const corsOptions = {
+  origin: '*',
+  credentials: false,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key', 'X-Amz-Security-Token']
+};
+
+app.use(cors(corsOptions));
 
 //TEST ROUTE 1
 app.get('/', (req, res) => {
@@ -25,5 +34,6 @@ app.use('/api/v1',permissionsRoute)
 
 // IMPORTANT: Export the Express app instance
 export default app;
+
 
 
