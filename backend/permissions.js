@@ -6,8 +6,7 @@ export const ROLE_MATRIX = {
     manage_incidents: {
       create: true,
       read: true,
-      update: true,
-      delete: true
+      update: true
     },
 
     manage_alerts: true
@@ -20,8 +19,7 @@ export const ROLE_MATRIX = {
     manage_incidents: {
       create: true,
       read: true,
-      update: true,
-      delete: false
+      update: true
     }
   },
 
@@ -32,8 +30,7 @@ export const ROLE_MATRIX = {
     manage_incidents: {
       create: true,
       read: true,
-      update: true,
-      delete: false
+      update: true
     }
   }
 };
