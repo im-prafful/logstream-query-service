@@ -14,7 +14,7 @@ export const ROLE_MATRIX = {
 
   dev: {
     view_logs: true,
-    view_clusters: false,
+    view_clusters: false,//this is the only diff
 
     manage_incidents: {
       create: true,
@@ -25,7 +25,7 @@ export const ROLE_MATRIX = {
 
   qa: {
     view_logs: true,
-    view_clusters: false,
+    view_clusters: false,//this is the only diff
 
     manage_incidents: {
       create: true,

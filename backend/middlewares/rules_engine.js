@@ -4,14 +4,16 @@ export const authorize = (permission, capability) => {
     return (req, res, next) => {
         const role = String(req.user?.role || '').toLowerCase(); // extracted from JWT by jwtMiddleware
 
-        // Nested permissions (e.g. manage_incidents.create)
-        if (permission && capability && ROLE_MATRIX?.[role]?.[permission]?.[capability]) {
-            return next();
-        }
         // Flat permissions (e.g. view_logs)
-        else if (permission && !capability && ROLE_MATRIX?.[role]?.[permission]) {
+        if (permission && !capability && ROLE_MATRIX?.[role]?.[permission]) {
             return next();
         }
+        
+        // Nested permissions (e.g. manage_incidents.create)
+        else if (permission && capability && ROLE_MATRIX?.[role]?.[permission]?.[capability]) {
+            return next();
+        }
+
         // Denied
         else {
             return res.status(403).json({
