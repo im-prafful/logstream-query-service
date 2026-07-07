@@ -49,22 +49,14 @@ export const getDashboardLogs = async (req, res) => {
         const [recentLogs, logs_per_category, logs_per_cluster] = await Promise.all([
             query(`SELECT * FROM logs ORDER BY timestamp DESC LIMIT ${temp}`),
             query(`SELECT COUNT(*) as tc, level as lvl FROM logs GROUP BY level order by tc desc`),
-            //Logs per cluster for latest DATE
+            // Logs per cluster (global counts including NULL for unprocessed)
             query(`
-      WITH t AS (
-        SELECT DATE(timestamp) AS latest_date
-        FROM logs
-        ORDER BY timestamp DESC
-        LIMIT 1
-      )
       SELECT
-        l.cluster_id,
+        cluster_id,
         COUNT(*) AS total_logs_per_cluster
-      FROM logs l
-      JOIN t
-        ON DATE(l.timestamp) = t.latest_date
-      WHERE l.level IN ('error','warning')
-      GROUP BY l.cluster_id
+      FROM logs 
+      WHERE level IN ('error','warning')
+      GROUP BY cluster_id
     `)
         ]);
 

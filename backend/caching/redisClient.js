@@ -1,10 +1,10 @@
 import { createClient } from "redis";
 const redisclient = createClient({
     socket: {
-        host: 'redis-18605.c301.ap-south-1-1.ec2.cloud.redislabs.com',
-        port: 18605
+        host: 'redis-13238.crce283.ap-south-1-2.ec2.cloud.redislabs.com',
+        port: 13238
     },
-    password: 'B1NSvZBXhYGrzm1qHWkBFW3qJ1l2a2sH'
+    password: 'dJARtwvWmIpQqDVyz2shiv6GNRNt7lao'
 });
 
 redisclient.on('error', (err) => console.log('Redis redisclient error:', err));

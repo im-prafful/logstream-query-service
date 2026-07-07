@@ -13,35 +13,47 @@ export const getLogsByClusterId = async (req, res) => {
             });
         }
 
-        const cachedData = await redisclient.get(`logsByClusterId:${clusterId}`);
+        const cachedData = await redisclient.get(`logsByClusterIdV2:${clusterId}`);
         if (cachedData) {
+            const parsed = JSON.parse(cachedData);
             return res.status(200).json({
                 message: 'success',
-                logs: JSON.parse(cachedData)
+                logs: parsed.logs,
+                chartData: parsed.chartData
             });
         }
 
+        const [logsResult, chartResult] = await Promise.all([
+            query(`
+                SELECT *
+                FROM logs
+                WHERE cluster_id = ${clusterId}
+                ORDER BY timestamp DESC
+                LIMIT 5;
+            `),
+            query(`
+                SELECT 
+                    DATE(timestamp) as date, 
+                    COUNT(*) as count
+                FROM logs
+                WHERE cluster_id = ${clusterId}
+                GROUP BY DATE(timestamp)
+                ORDER BY date ASC;
+            `)
+        ]);
 
-        const result = await query(`
-            WITH t AS (
-            SELECT DATE(timestamp) AS log_date
-            FROM logs
-            ORDER BY timestamp DESC
-            LIMIT 1
-            )
-            SELECT *
-            FROM logs l
-            JOIN t ON DATE(l.timestamp) = t.log_date
-            WHERE cluster_id = ${clusterId}
-            ORDER BY cluster_id
-            LIMIT 10;
-    `);
 
-        await redisclient.setEx(`logsByClusterId:${clusterId}`, 120, JSON.stringify(result.rows));
+        const responseData = {
+            logs: logsResult.rows,
+            chartData: chartResult.rows
+        };
+
+        await redisclient.setEx(`logsByClusterIdV2:${clusterId}`, 120, JSON.stringify(responseData));
 
         return res.status(200).json({
             message: 'Success',
-            logs: result.rows
+            logs: responseData.logs,
+            chartData: responseData.chartData
         });
 
     } catch (e) {
