@@ -3,6 +3,7 @@ import authRoutes from './routes/authRoute.js';
 import dashboardDisplayRoutes from './routes/dashboardDispRoute.js'
 import exploreClustersRoutes from './routes/exploreClusterRoute.js'
 import permissionsRoute from './routes/permissionsRoute.js'
+import usersRoute from './routes/usersRoute.js'
 import cors from 'cors'
 const app = express();
 
@@ -30,10 +31,7 @@ app.use('/api/v1',authRoutes)
 app.use('/api/v1',dashboardDisplayRoutes)
 app.use('/api/v1',exploreClustersRoutes)
 app.use('/api/v1',permissionsRoute)
-
+app.use('/api/v1/users', usersRoute)
 
 // IMPORTANT: Export the Express app instance
 export default app;
-
-
-

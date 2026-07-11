@@ -43,10 +43,11 @@ export const viewIncidentById = async (req, res) => {
     }
 
     const result = await query(`
-      SELECT *
-      FROM incidents
-      WHERE incident_id='${incidentId}'
-      AND assigned_role='${role}'
+      SELECT i.*, u.full_name as assigned_user_name
+      FROM incidents i
+      LEFT JOIN users u ON i.assigned_to = u.user_id::text
+      WHERE i.incident_id='${incidentId}'
+      AND i.assigned_role='${role}'
       LIMIT 1
     `);
 
@@ -71,13 +72,15 @@ export const createIncident = async (req, res) => {
     let { cluster_id, assigned_role, assigned_to } = req.body;
     assigned_role = String(assigned_role || "").trim().toUpperCase();
 
-    if (!cluster_id || !assigned_role || !assigned_to) {
-      return res.status(400).json({ message: "cluster_id, assigned_role and assigned_to are required" });
+    if (!cluster_id || !assigned_role) {
+      return res.status(400).json({ message: "cluster_id and assigned_role are required" });
     }
+
+    const assignedToVal = assigned_to ? `'${assigned_to}'` : 'NULL';
 
     await query(`
             INSERT INTO incidents (cluster_id, assigned_role, assigned_to)
-            VALUES (${cluster_id}, UPPER('${assigned_role}'), '${assigned_to}')
+            VALUES (${cluster_id}, UPPER('${assigned_role}'), ${assignedToVal})
         `);
 
     // Invalidate cache so next read reflects fresh DB data
@@ -107,22 +110,24 @@ export const updateIncById = async (req, res) => {
 
     let { status, assigned_role, assigned_to } = req.body
 
-    if (!status || !assigned_role || !assigned_to) {
+    if (!status || !assigned_role) {
       return res.status(400).json({
-        message: "status, assigned_role and assigned_to are required"
+        message: "status and assigned_role are required"
       });
     }
 
     status = String(status || "").trim().toUpperCase();
     assigned_role = String(assigned_role || "").trim().toUpperCase();
     assigned_to = String(assigned_to || "").trim();
+    
+    const assignedToVal = assigned_to ? `'${assigned_to}'` : 'NULL';
 
     await query(`
       UPDATE incidents
       SET 
         status='${status}', 
         assigned_role='${assigned_role}', 
-        assigned_to='${assigned_to}',
+        assigned_to=${assignedToVal},
         updated_at=NOW(),
         resolved_at = CASE WHEN '${status}' = 'RESOLVED' THEN NOW() ELSE NULL END
       WHERE incident_id='${incidentId}'
@@ -148,10 +153,13 @@ export const viewIncidentHistory = async (req, res) => {
     }
 
     const result = await query(`
-      SELECT history_id, incident_id, user_id, comment, old_value, new_value, changed_at
-      FROM incident_history
-      WHERE incident_id='${incidentId}'
-      ORDER BY changed_at DESC
+      SELECT 
+        h.history_id, h.incident_id, h.user_id, h.comment, h.old_value, h.new_value, h.updated_at,
+        u.full_name as user_name
+      FROM incident_history h
+      LEFT JOIN users u ON h.user_id = u.user_id
+      WHERE h.incident_id='${incidentId}'
+      ORDER BY h.updated_at DESC
     `);
 
     return res.status(200).json({
