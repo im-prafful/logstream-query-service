@@ -8,7 +8,7 @@ router.post('/signup',signupFnc)
 
 router.post('/login', async (req, res, next) => {
     console.log("--- CAPTCHA MIDDLEWARE IS RUNNING ---"); // <-- Add this line
-    let sever_secret = '6LdeYiwsAAAAABN7i_VqkIFa4QAltzRqVX5uj3Hd';
+    let sever_secret = '6Le75k4tAAAAALFuHUbAk6YwSczhu6wAWjodUNBu';
     const { captchaData } = req.body;
     try {
         const { data } = await axios.default.post(
